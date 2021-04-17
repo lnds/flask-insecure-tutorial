@@ -1,0 +1,19 @@
+{% extends 'base.html' %}
+{% block content %}
+<h1>{% block title %} {{label}} una historia {% endblock %}</h1>
+		<form action="{{action}}" method="GET">
+      <div class="form-group">
+        <label for="title">Título</label>
+        <input type="text" placeholder="título" name="title" class="form-control" value="{{ request.form['title'] or post['title']}}"></input>
+      </div>
+      <div class="form-group">
+        <label for="content">Contenido</label>
+        <textarea name="content" class="form-control">
+        {{ request.form['content'] or post['content']}}
+        </textarea>
+      </div>
+      <div class="form-group">
+        <input type="submit" value="Publicar" class="btn btn-primary"></input>
+      </div>
+		</form>
+{% endblock %}
