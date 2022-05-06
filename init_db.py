@@ -7,18 +7,24 @@ connection = psycopg2.connect(
     password="pass"
   )
 
+exists = False
+
+
+
 
 with connection.cursor() as cur:
-    cur.execute(open('schema.sql', 'r').read())
-
-    cur.execute("INSERT INTO posts (title, content) VALUES (%s, %s)",
+   cur.execute("select exists(select todos from pg_class where relname='posts')")
+   exists = cur.fetchone()[0]
+   
+   if not exists:
+     cur.execute(open('schema.sql', 'r').read())
+     cur.execute("INSERT INTO posts (title, content) VALUES (%s, %s)",
             ('First Post', 'Content for the first post')
             )
-
-    cur.execute("INSERT INTO posts (title, content) VALUES (%s, %s)",
+     cur.execute("INSERT INTO posts (title, content) VALUES (%s, %s)",
             ('Second Post', 'Content for the second post')
             )
-    cur.close()
+   cur.close()
 
 connection.commit()
 connection.close()
