@@ -1,20 +1,26 @@
 # warning this project has vulnerabilites on purpose
-import sqlite3
 import html
 from flask import Flask, flash, redirect, render_template, request, url_for
 from werkzeug.exceptions import abort
+import psycopg2
 
 app = Flask(__name__)
 app.secret_key = b'_5#y2L"F4Q8z\n\xec]/'
 
 def get_db_connection():
-  conn = sqlite3.connect('database.db')
-  conn.row_factory = sqlite3.Row
+  conn = psycopg2.connect(
+    host="db",
+    database="flask_db",
+    user="user",
+    password="pass"
+  )
   return conn
 
 def get_post(post_id):
   conn = get_db_connection()
-  post = conn.execute(f"SELECT * FROM posts WHERE ID = {post_id}").fetchone()
+  cur = conn.cursor()
+  post = cur.execute(f"SELECT * FROM posts WHERE ID = {post_id}").fetchone()
+  cur.close()
   conn.close()
   if post is None:
     abort(404)
@@ -23,7 +29,9 @@ def get_post(post_id):
 @app.route('/')
 def index():
   conn = get_db_connection()
-  posts = conn.execute('SELECT * FROM posts').fetchall()
+  cur = conn.cursor()
+  posts = cur.execute('SELECT * FROM posts').fetchall()
+  cur.close()
   conn.close()
   return render_template('index.html', posts=posts)
 
@@ -50,8 +58,10 @@ def create():
     flash('Se requiere un titulo al menos', 'danger')
   else:
     conn = get_db_connection()
+    cur = conn.cursor()
     conn.execute(f"INSERT INTO posts(title, content) VALUES('{title}', '{content}')")
     conn.commit()
+    cur.close()
     conn.close()
     flash('Post creado', 'success')
     return redirect(url_for('index'))
