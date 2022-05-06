@@ -5,7 +5,7 @@ from flask import Flask, flash, redirect, render_template, request, url_for
 from werkzeug.exceptions import abort
 import psycopg2
 import psycopg2.extras
-
+import config
 
 app = Flask(__name__)
 app.secret_key = b'_5#y2L"F4Q8z\n\xec]/'
@@ -14,10 +14,10 @@ nombre_blog = os.environ.get('TITULO', default='')
 
 def get_db_connection():
   conn = psycopg2.connect(
-    host="db",
-    database="flask_db",
-    user="user",
-    password="pass"
+    host=config.host,
+    database=config.database,
+    user=config.user,
+    password=config.password
   )
   return conn
 

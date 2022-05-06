@@ -1,12 +1,14 @@
 import psycopg2
+import config
+
 
 connection = psycopg2.connect(
-    host="db",
-    database="flask_db",
-    user="user",
-    password="pass"
-  )
-
+   host=config.host,
+   database=config.database,
+   user=config.user,
+   password=config.password,
+)
+    
 exists = False
 
 
