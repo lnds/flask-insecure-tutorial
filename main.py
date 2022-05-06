@@ -1,11 +1,16 @@
 # warning this project has vulnerabilites on purpose
 import html
+import os
 from flask import Flask, flash, redirect, render_template, request, url_for
 from werkzeug.exceptions import abort
 import psycopg2
+import psycopg2.extras
+
 
 app = Flask(__name__)
 app.secret_key = b'_5#y2L"F4Q8z\n\xec]/'
+
+nombre_blog = os.environ.get('TITULO', default='')
 
 def get_db_connection():
   conn = psycopg2.connect(
@@ -18,8 +23,9 @@ def get_db_connection():
 
 def get_post(post_id):
   conn = get_db_connection()
-  cur = conn.cursor()
-  post = cur.execute(f"SELECT * FROM posts WHERE ID = {post_id}").fetchone()
+  cur = conn.cursor(cursor_factory=psycopg2.extras.DictCursor)
+  cur.execute(f"SELECT * FROM posts WHERE ID = {post_id}")
+  post = cur.fetchone()
   cur.close()
   conn.close()
   if post is None:
@@ -29,11 +35,12 @@ def get_post(post_id):
 @app.route('/')
 def index():
   conn = get_db_connection()
-  cur = conn.cursor()
-  posts = cur.execute('SELECT * FROM posts').fetchall()
+  cur = conn.cursor(cursor_factory=psycopg2.extras.DictCursor)
+  cur.execute('SELECT * FROM posts')
+  posts = cur.fetchall()
   cur.close()
   conn.close()
-  return render_template('index.html', posts=posts)
+  return render_template('index.html', posts=posts, nombre_blog=nombre_blog)
 
 @app.route('/<int:post_id>')
 def post(post_id):
@@ -59,7 +66,7 @@ def create():
   else:
     conn = get_db_connection()
     cur = conn.cursor()
-    conn.execute(f"INSERT INTO posts(title, content) VALUES('{title}', '{content}')")
+    cur.execute(f"INSERT INTO posts(title, content) VALUES('{title}', '{content}')")
     conn.commit()
     cur.close()
     conn.close()

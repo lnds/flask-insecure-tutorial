@@ -1,20 +1,24 @@
-import sqlite3
+import psycopg2
 
-connection = sqlite3.connect('database.db')
+connection = psycopg2.connect(
+    host="db",
+    database="flask_db",
+    user="user",
+    password="pass"
+  )
 
 
-with open('schema.sql') as f:
-    connection.executescript(f.read())
+with connection.cursor() as cur:
+    cur.execute(open('schema.sql', 'r').read())
 
-cur = connection.cursor()
-
-cur.execute("INSERT INTO posts (title, content) VALUES (?, ?)",
+    cur.execute("INSERT INTO posts (title, content) VALUES (%s, %s)",
             ('First Post', 'Content for the first post')
             )
 
-cur.execute("INSERT INTO posts (title, content) VALUES (?, ?)",
+    cur.execute("INSERT INTO posts (title, content) VALUES (%s, %s)",
             ('Second Post', 'Content for the second post')
             )
+    cur.close()
 
 connection.commit()
 connection.close()
