@@ -13,7 +13,7 @@ exists = False
 
 
 with connection.cursor() as cur:
-   cur.execute("select exists(select todos from pg_class where relname='posts')")
+   cur.execute("select exists(select relname from pg_class where relname='posts')")
    exists = cur.fetchone()[0]
    
    if not exists:
