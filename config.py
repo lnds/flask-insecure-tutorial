@@ -1,4 +1,3 @@
-# config.py
 import os
 
 host = os.environ.get("HOST", default="db")
